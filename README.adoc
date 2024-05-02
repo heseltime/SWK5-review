@@ -1,0 +1,1076 @@
+= SWK 5 Prüfung
+// :stylesheet: stylesheet.css
+:description: Test
+:page-layout: docs
+:sectanchors:
+:sectlinks:
+:sectnums:
+:sectnumlevels: 1
+:icons: font
+:source-highlighter: pygments
+:source-language: asciidoc
+:idprefix:
+:idseparator: -
+:imagesdir: ./images
+:includedir: ./includes
+:toc-title: Contents
+:toclevels: 4
+:toc: left
+
+== Allgemeine Fragen zu .NET
+
+[.text-right]
+*( /5)*
+
+=== 1. R2R Assemblies & Tiered Comp.
+
+* Was versteht man unter "Ready to Run Assemblies" und im welchem Zusammenhang stehen diese mit "Tiered Compilation"?
++
+--
+****
+Tiered Compilation wurde in .NET 2.1 Eingeführt und ziehlt die Verbesserung von .NET Applikationen ab. Es ist ein Konzept aus JIT und der CLR (Common Language Runtime) der JIT compiliert auf IL Code (Intermediate Language Code)
+und diesen dann in nativen machinen Code.
+
+* Tier 0 (Quick but less optimized compilation JIT)
+* Tier 1 (Optimized Compilation CLR determines "hot" or freq. exec. code and recompiles using more advanced optimizations.
+* Tier 2 (Further Optimizations just aggressive optimizations of the prev Tier Code)
+
+R2R Assemblies wurden in .NET 3.0 eingeführt und reduziert die zeit für die JIT compilation und start zeiten der Applikation.
+
+* Vorcompilierter Nativer Code das bedeutet das kein IL Code enthalten ist sondern vorkompilierter nativer Code der IL Code ist AOT compiliert worden (Ahead Of Time) da R2R Assemblies nativen Code enthalten sind dieser nur am aktuellen target "viable"
+* Smaller Deployments
+* Improved Startup
+
+Beides sind verfahren um das Laufen von C# Applikationen zu erhöhen.
+****
+--
+
+=== 2. EXE & DLLs
+
+* Ein Assembly App hat nebenstehenden Aufbau: Was ist in diesen Dateien (.exe und .dll) gespeichert? Was passiert, wenn die DLLs gelöscht werden.
++
+--
+[source,verbatim]
+----
+APP/
+| App.exe
+| en-US/
+|     | App.*.dll
+| de-AT/
+|     | App.*.dll
+----
+
+****
+In der .exe ist die Funktion der App definiert in den daneben stehenden dlls sind Sprach spezifische teile der App gespeichert die in der App je nach Sprach einstellung verwendet werden so wird in dem Fall wenn eine App.*.dll in z.B. dem en-US Verzeichnis glöscht wird nur noch die Deutsche ausführung der App vorhanden sein und falls all entfernt würden je nach variante kann es sein, dass die App nicht mehr funktioniert oder keine Sprachspezifischen teile anzeigen kann oder mit Fallback Inhalt belegt ist. Je nachdem wie die App diese fehlenden DLLs handlet.
+****
+
+--
+
+=== 3. Self-contained Deployment
+
+* Wann würden Sie die Deployment-Strategie "Self-contained Deployment" empfehlen?
++
+--
+****
+Ich würde es empfehlen falls in der Umgebung für die Bereitstellung der Anwendung große flexibilität und unabhängigkeit in richtung externe Faktoren wie z.B. die version der .NET Runtime hat. Mit SCD (Self-contained Deployment) ist es möglich die .NET-Anwendung mit minmalen Systemanforderungen auf verschieden Platfformen (Plattform unabhängig) zu verteilen / auszuführen.
+
+* Isolation
+* Portability
+* Consistency
+* Ease of Deployment
+****
+--
+
+[mermaid,"timeline",svg]
+....
+gantt
+    title Technologieentwicklung Timeline
+    dateFormat  YYYY
+    section UWP
+    Universal Windows Platform (UWP)    :done, 2012, 2015
+    section WINFORMS
+    Windows Forms (WinForms)            :done, 2002, 2002
+    section WINUI
+    Windows UI Library (WinUI)          :done, 2019, 2019
+    section WPF
+    Windows Presentation Foundation (WPF)  :done, 2006, 2006
+    section MAUI
+    .NET Multi-platform App UI (MAUI)   :active, 2020, 2022
+....
+
+=== 4. WPF vs. MAUI
+
+* Vergleichen Sie WPF und MAUI: Führen Sie eine wesentliche Gemeinsamkeit (aus Enwicklersicht) und eine wesentlichen Unterschied (aus Anwendersicht) an.
++
+--
+****
+Aus Entwicklersicht ist eine Gemeinsamkeit, dass mit beiden xaml zum Einsatz kommt um das Frontend zu Realisieren. Als Unterschied für Anwender ist das MAUI apps auf Smartphones laufen und WPF Applikationen grundsätzlich auf dem PC (Windows) ausführbar sind.
+****
+--
+
+=== 5. UWP vs. WinUI
+
+* Vergleichen Sie UWP und WinUI: Welches Problem beim Deployment von UWP-Apps wurde in WinUI beseitigt?
++
+--
+****
+Durch eine modulare Architektur mit WinUI gibt es die möglichkeit das Entwickler nur die benötigten teile in ihre Applikation einbauen und somit auch die größe der Applikationen niedriger zu der UWP Implementierung ist. WinUI besitzt auch Backwards Compatibility.
+Desweiteren ist WinUI nicht mit der Windows Runtime (aka Windows) gebundelt sondern unabhängig was versions checks hinfällig macht.
+****
+--
+
+
+
+== C#
+
+[.text-right]
+*(4 + 2 + 4 + 5 /15)*
+
+=== a) Erweiterungsmethoden: 
+
+Die Erweiterungsmethoden Take<T> gibt die ersten n Elemente einer Enumeration (IEnumerable<T>) zurück. Falls source weniger n Elemente enthählt, werden alle Elemente von source definiert.
+
+Geben Sie die Schnittstelle und die Implementierung von Take<T> an. Sie dürfen dafür keine LINQ Methoden verwenden. Diese Methode soll verzögerte Ausführung (deferred executin) unterstützen.
+
+```csharp
+public static class EnumerableUtil
+{
+    public static IEnumerable<T> Take<T>(int n, IEnumerable<T> e)
+    {
+      using(var it = e.GetEnumerator()){
+        while(n > 0 && it.MoveNext(){
+          yield return it.Current;
+          n--;
+        }
+      }
+    }
+}
+```
+
+Solution (with "this" keyword and some clean checking logic - muss auf static class implementiert werden):
+#
+```csharp
+public static class EnumerableUtil
+{
+    // Diese Methode gibt die ersten n Elemente der übergebenen Enumeration zurück.
+    // Die Methode unterstützt verzögerte Ausführung, indem sie 'yield return' verwendet.
+    public static IEnumerable<T> Take<T>(this IEnumerable<T> source, int count)
+    {
+        // Prüfen, ob die Quelle null ist
+        if (source == null)
+        {
+            throw new ArgumentNullException(nameof(source), "Die Quell-Enumeration darf nicht null sein.");
+        }
+
+        // Verwenden eines Enumerators, um durch die Quellelemente zu iterieren
+        using (var enumerator = source.GetEnumerator())
+        {
+            // Solange es noch Elemente gibt und die gewünschte Anzahl nicht erreicht ist
+            while (count > 0 && enumerator.MoveNext())
+            {
+                // Gibt das aktuelle Element zurück
+                yield return enumerator.Current;
+                // Dekrementiert die Zählung
+                count--;
+            }
+        }
+    }
+}
+```
+
+[source,csharp]
+....
+public record Quote(GUID id, string Content, string Author, int Likes);
+public interface IQuotesLogic {
+  Task<Quote?> NextQuoteAsync(int minLikes = 0); // returns null if there are no more quotes
+  Task<Guid> AddQuoteAsync(quote);               // returns the server-generated ID
+}
+
+public record Quote(GUID id, string Content, string Author, int Likes);
+public interface IQuotesLogic {
+
+}
+public class QuotesLogic : IQuotesLogic { ... }
+....
+
+=== b) LINQ:
+
+Implementieren Sie unter möglichst ... Verwendung von LINQ
+die n am häufigsten bewerteten Zitate (Anzahl Likes) ermitteln. Die Zitate die
+sortieren und für jedes Zitat ist der Zitattext (Content) und die Anzahl der Likes zurückzugeben.
+
+[source,csharp]
+....
+// var n 
+// var minLikes
+var result = (from quote in this.quotes 
+  where quote.Likes >= minLikes 
+  select quote)
+  .Take(n); // Skip SkipWhile TakeWhile FirstOrDefault LastOrDefault First Last TakeLast SkipLast ElementAt
+....
+
+=== c) Delegates:
+
+Implementieren Sie in QoutesLogic das Event OnNewQuote vom Datentyp Action<Quote>?, über das im Abstand von einer Minute ein neues Zitat publiziert wird. Ihnen steht dafür folgende Klass zur Verfügung:
+
+[source,csharp]
+....
+public Timer {
+  public Timer(double intervalInMillis);
+  public void Start();
+  public event ElapsedEventHandler Elapsed;
+}
+public delegate void ElapsedEventHandler(object? sender, ElapsedEventArgs e);
+....
+
+[source,csharp]
+....
+public class QuotesLogic : IQuotesLogic
+{
+  public Action<Quote>? NewQuoteEventHandler; // is a delegate
+  public event NewQuoteEventHandler OnNewQuote; // this is event
+  /*
+    OnNewQuote?.Invoke(NextQuoteAsync());
+  */
+}
+
+ Timer t = new Timer(60000); // create 1min Timer
+ var qL = new QuotesLogic();
+    t.Elapsed += (object sender, ElapsedEventArgs e) => { // subscribe to elapse event
+        qL.OnNewQuote?.Invoke(Quote qt); // Invoke the New Quote Event on IQuotesLogic
+        Console.WriteLine("New Quote")
+      };
+    t.Start(); // start the 1min timer
+
+....
+
+=== d Asynchrone Programmierung:
+
+Eine C# Methode ist folgendermaßen implementiert:
+
+[source,csharp]
+....
+public string GetUserName(int id) {
+  return userDao.FindByIdAsync(id).Result.Name;
+}
+....
+
+Zu welchen Problemen kann die Implementierung dieser Methode führen?
+
+****
+Wenn diese Methode aufgerufen wird kann es sein, dass der Task der von FindByIdAsync aufgerufen wird noch nicht fertig ist und es kann in einem Deadlock füren  in GUI Apps da Result wartet bis der Task fertig ist.
+Um dass problem zu umgehen kann man den Task Returnen und GetUserName async machen oder man awaited den Task asyncron mit await was nicht den synchronen Kontext sperrt
+****
+
+[source,csharp]
+....
+public string GetUserName(int id) {
+  return (await userDao.FindByIdAsync(id)).Name;
+}
+....
+
+== ASP.NET Core
+
+[.text-right]
+*(4 + 3 + 3 + 3 + 3 /16)*
+
+In dieser Aufgabe sollen Sie Überlegungen zum Design und der Implementierung von einem REST-Service zum Verwerten von Zitaten anstellen. Gehen Sie von folgender Geschäftslogik-Schnittstelle aus:
+
+[source,csharp]
+....
+public record Quote(GUID id, string Content, string Author, int Likes);
+public interface IQuotesLogic {
+  Task<Quote?> NextQuoteAsync(int minLikes = 0); // returns null if there are no more quotes
+  Task<Guid> AddQuoteAsync(quote);               // returns the server-generated ID
+}
+....
+
+=== a) Service 
+
+Der Service soll folgende Endpunkte anbieten:
+
+1. Einen Endpunkt zum Abfragen des nächsten Zitats, wobei optional agegeben werden kann, wie viel Likes dieses Zitat mindestens haben soll.
+2. Einen Endpunkt zum Hinzufügen eines Zitats, wobei die ID serverseitig vergeben wird und auch ... serverseitig verwaltet werden.
+
+* Geben Sie die nachstehend angeführten Eigenschaften für Endpunkt (1) an. Beachten Sie, dass es ... Fehler zu interpretieren ist, wenn keine weiteren Zitate mehr verfügbar sind.
+
+[cols="1,5"]
+|===
+|HTTP-Verb                     | GET
+|URL                           | /Zitat
+|Status-Code(s) im Erfolgsfall | 200 (Ok)
+|===
+
+* Geben Sie die nachstehend angeführten Eigenschaften für Endpunkt (2) an.
+
+[cols="1,5"]
+|===
+|HTTP-Verb                                       | POST    PUT
+|URL                                             | /Zitat/Add
+|Status-Code(s) im Erfolgsfall                   | 201 (Created) 202 (Accepted) 200 (Ok) 204 (No Content)
+|Mögliche Fehler-Codes                           | 400 (Bad Request) 409 (Conflict)
+|Möglichkeiten, die generierte ID zu übermitteln | Route Parameter, Request Body, Header, Cookies
+|===
+
+=== b) Konfiguration der Anwendung
+
+* Führen Sie die notwendigen Ergänzungen an der Konfiguration der Anwendung durch, damit dei Geschäftslogik im Controller zur Verfügung steht. Berücksichtigen Sie auch, dass die Geschäftslogik das DAO QuotesDao mit dem Interface 3 IQuotesDao benötigt. 
+
+*Ergänzung*
+
+DI (Dependency Injection) *konfiguriern*.
+****
+* service.AddScoped<IBusinessLogic, BusinessLogic>();
+* service.AddSingleton<IBusinessLogic, BusinessLogic>();
+****
+
+* Was bewirkt der von Ihnen gewählte Gültigkeitsbereich?
+
+****
+Scoped bewirkt, dass für die Instanz der BusinessLogic nur für den Aktuellen Request gilt.
+Transient bewirkt, dass die BusinessLogic jedes mal wenn diese angefragt wird erstellt wird ist nur für leichgewichtete Services gedacht.
+Singleton bewirkt dass die BusinessLogic nur einmal instanziert wird und die instanz verteilt überall verwendet werden kann und ist für schwerlastige Services geeignet.
+****
+
+* Welche Voraussetzungen müssen die Geschäftslogik und die Controller erfüllen, damit die angeführten Konfigurationseinstellungen wirksam werden?
+
+****
+DI (Dependency Injection) in Controller definieren.
+Injection der tBusinessLogic in den/die Controller
+****
+
+=== c Controller
+
+Implementieren Sie die Controller Methode, die Endpunkt (5) zu... wird. Geben Sie auch die Schnittstelle und die Erforderlichen als auch die optionalen Attribute dieser Methode an. Gehen Sie davon aus, dass im Controller noch keine Basisroute definiert ist.
+
+.Quote
+[source,csharp]
+....
+[ApiController]
+[Route("api/[controller]")]  // [controller] uses this controllers name in lowercase
+public class QuoteController : ControllerBase
+  [HttpGet]
+  public IActionResult Get() {
+      HttpContext ctx = HttpContext;
+      string content = ctx.Request.Headers["Content-Type"];
+      return Ok("Test");
+  }
+}
+
+[ApiController]
+[Route("api/[controller]")]
+public class PersonAdminController : Controller {
+  private readonly IPersonAdminLogic persAdmin = new PersonAdminLogic();
+  public ActionResult Index() {
+    var model = persAdmin.FindAll().Select(pers => new PersonModel(pers));
+    return View("Index", model);
+  }
+}
+....
+
+=== d Minimal API
+
+* Führen Sie die Implementierung von Endpunkt (1) mithilfe der Minimal-API durch. Teile, die gleich bleiben müssen natürlich nicht wiederholen.
+
+* Geben Sie eine wesentliche technische Einschränkung der Minimal-API an.
++
+--
+Es gitb wenig vorgegebene Conventionen die es im ASP.NET Framework gibt.
+Für große und complexe Projekte ist es einfacher mittels Controllern zu arbeiten.
+--
+
+* Sie wollen für den Zitat-Service einen weiteren Endpunkt zur Verfügung stellen, der von sich... ...änden Zitate an registrierte Clients weitergibt. dafür soll SignalR eingesetzt werden.
++
+Welche Kommunikationsart von SignalR empfehlen Sie führ die konkrete Aufgabenstellung... ...Abfolge von Nachrichten bei dieser Kommunikationsart ein.
++
+--
+* Server-Sent Events
+* Websockets
+* Long Polling
+
+SSE ist der favorite da es eine unidirektional verbindung vom server zum client bietet und sehr leichgewichtig ist somit ist es ideal für meherere connections von unterschiedlichen clients
+--
+
+* Skizzieren Sie die Implementierung dieses Endpunktsl. Sie müssen nur die S... ben kann?   Welcher Anwendungs...
+
+[source,csharp]
+....
+await using var r = new MyResource();
+....
+
+****
+-
+****
+
+== Last
+
+[.text-right]
+*( /14)*
+
+IMPORTANT: ...
+
+
+== SWK5 2te Prüfung
+
+[mermaid,"compile",svg]
+....
+flowchart LR
+    subgraph src ["Source Code (.cs)"]
+        A((Editor))
+        B((.cs files))
+        A -->|Writes| B
+    end
+    subgraph cp ["C# Compiler"]
+        C((Scanner))
+        D((Parser))
+        E((Semantic Analyzer))
+        F((Intermediate Code Generator))
+        C --> D
+        D --> E
+        E --> F
+    end
+    subgraph out ["Intermediate Representation (.exe, .dll)"]
+        G((Machine Code))
+    end
+    subgraph jit ["Just-In-Time (JIT) Compiler"]
+        H((JIT Compiler))
+        I((Machine Code))
+        H --> I
+    end
+    subgraph mc ["Machine Code"]
+        J((Executable))
+    end  
+    src -->|Input| cp
+    cp -->|Output| out
+    out -->|Input| jit
+    jit -->|Output| mc
+
+....
+
+C# Compiler --> Intermediate Languaage
+Jit Compiler --> Nativen(Machinen) Code
+
+
+Was ist der Unterschied zu HotSpot Kompilierung und JIT Kompilierung?
+
+"HotSpot" (Tiered) Kompilierung in Java wird nicht kompiliert sondern nur interpretiert. JIT Kompilierung in .NET wird der Code in Maschinen Code umgewandelt und ausgeführt.
+
+
+JRE (originally from Sun, now from Oracle) features two virtual machines, one called Client and the other Server. The Client version is tuned for quick loading. It makes use of interpretation. The Server version loads more slowly, putting more effort into producing highly optimized JIT compilations to yield higher performance. Both VMs compile only often-run methods, using a configurable invocation-count threshold to decide which methods to compile.
+
+
+=== Tiered Compilation:
+
+* Tier 0 (Quick but less optimized compilation JIT)
+* Tier 1 (Optimized Compilation CLR (Common Language Runtime) determines "hot" or freq. exec. code and recompiles using more advanced optimizations.
+* Tier 2 (Further Optimizations just aggressive optimizations of the prev Tier Code)
+
+
+=== Ready to Run Assemblies:
+
+.NET application startup time and latency can be improved by compiling your application assemblies as ReadyToRun (R2R) format. R2R is a form of ahead-of-time (AOT) compilation.
+
+R2R binaries improve startup performance by reducing the amount of work the just-in-time (JIT) compiler needs to do as your application loads. The binaries contain similar native code compared to what the JIT would produce. However, R2R binaries are larger because they contain both intermediate language (IL) code, which is still needed for some scenarios, and the native version of the same code. 
+
+R2R is only available when you publish an app that targets specific runtime environments (RID) such as Linux x64 or Windows x64.
+
+INFO: RID is short for runtime identifier. RID values are used to identify target platforms where the application runs. They're used by .NET packages to represent platform-specific assets in NuGet packages. The following values are examples of RIDs: linux-x64, win-x64, or osx-x64.
+
+
+=== Wesentliche bestandteile von Assemblies (.exe, .dll):
+
+* Meta Daten
+* IL Code
+* Ressourcen
+
+Assemblies are the fundamental units of deployment, version control, reuse, activation scoping, and security permissions for .NET-based applications. An assembly is a collection of types and resources that are built to work together and form a logical unit of functionality. Assemblies take the form of executable (.exe) or dynamic link library (.dll) files, and are the building blocks of .NET applications. They provide the common language runtime with the information it needs to be aware of type implementations.
+
+=== Satelliten Assemblies:
+
+Sind sprachspezifische Teile einer Anwendung, die in separaten Assembly-Dateien gespeichert sind. Sie enthalten lokalisierte Ressourcen wie Zeichenfolgen, Bilder und Dialogfelder. (z.B. en-US, de-AT)
+
+Satellitenassemblys ermöglichen es die Benutzeroberfläche einer Anwendung in verschiedene Sprachen zu übersetzen und zu lokalisieren, ohne den restlichen Code zu ändern.
+
+Diese sind in Unterordnern der Hauptanwendung gespeichert und haben den gleichen Namen wie die Hauptanwendung, jedoch mit einem zusätzlichen Suffix, das die Kultur angibt, für die die Ressourcen bestimmt sind.
+
+
+=== Roll Forward Algorithmus:
+
+Version: Major.**Minor**.Patch
+
+Der Roll Forward Algorithmus wird verwendet, um die Anwendung auf die neueste verfügbare Version zu aktualisieren, wenn die angeforderte Version nicht verfügbar ist. Standardmäßig wird der Roll Forward Algorithmus für Nebenversionen (Minor) aktiviert. Der Roll Forward Algorithmus kann für .NET Core-Anwendungen konfiguriert werden, um das Rollforwardverhalten für Nebenversionen zu deaktivieren oder zu aktivieren oder auch für Hauptversionen zu aktivieren.
+
+Ab .NET Core 2.0 wird für alle .NET Core-Anwendungen automatisch ein Rollforward auf die neueste Nebenversion auf einem System installiert.
+
+----
+0                          1                          2
+
+2.0.0 -> 2.0.1 -> 2.0.2 -> 2.1.0 -> 2.1.1 -> 2.2.0 -> 3.0.0
+----
+
+[start=0]
+1. Das Rollforwardverhalten für Nebenversionen deaktivieren. Mit dieser Einstellung wird für Anwendungen für .NET Core 2.0.0 ein Rollforward auf .NET Core 2.0.1 ausgeführt, aber nicht für .NET Core 2.2.0 oder .NET Core 3.0.0.
+2. Das Rollforwardverhalten für Nebenversionen aktivieren. Dies ist die Standardeinstellung. Mit dieser Einstellung wird für Anwendungen für .NET Core 2.0.0 ein Rollforward auf .NET Core 2.0.1 oder .NET Core 2.2.0 abhängig davon ausgeführt, was installiert wird. Es wird jedoch kein Rollforward auf .NET Core 3.0.0 ausgeführt.
+3. Das Rollforwardverhalten für Neben- und Hauptversionen aktivieren. Wenn diese Einstellung festgelegt wird, werden auch verschiedene Hauptversionen für das Rollforwardverhalten beachtet, d. h., für Anwendungen für .NET Core 2.0.0 wird ein Rollforward auf .NET Core 3.0.0 ausgeführt.
+
+== 2. C# Fragen
+
+[source,csharp]
+----
+public class Person {
+    public FirstName { get; init; }
+    public LastName  { get; }
+  };
+
+// Uses init list for setting FirstName
+Person p { FirstName = "Max" };
+----
+
+Wie funktionert die Fehlerbehandlung in C# bei null werten?
+
+* Null Coalescing Operator (??)
+* Null Conditional Operator (?.)
+* Null Forgiving Operator (!) und Null Reference Exception
+* Null Coalescing Assignment (??=)
+// * Null Conditional Assignment (?.=)
+
+The null-coalescing operator ?? returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result.
+The ?? operator doesn't evaluate its right-hand operand if the left-hand operand evaluates to non-null.
+
+**Null Coalescing Operator (??)**
+[source,csharp]
+----
+public class Person
+{
+    public string Name { get; set; }
+}
+
+public class Program
+{
+    public static void Main()
+    {
+        Person person = null;
+        string name = person?.Name; // No exception thrown, name will be null
+
+        Console.WriteLine(name ?? "No name provided"); // Prints "No name provided"
+    }
+}
+----
+
+**Null Forgiving Operator (!)**
+[source,csharp]
+----
+#nullable enable
+string? nullableString = GetNullableString();
+string nonNullableString = nullableString!; // Asserting that it is not null
+
+Console.WriteLine(nonNullableString.Length); // Would throw NullReferenceException at runtime if nullableString is null
+
+string? GetNullableString() => null; // Simulating a method that might return null
+[10:47 AM]
+In the example:
+
+nullableString could be null.
+Using nullableString! tells the compiler that nullableString is not null at that point.
+The program still risks a NullReferenceException at runtime if nullableString is indeed null when accessed.
+----
+
+**Null Coalescing Assignment Operator (??=)**
+[source,csharp]
+----
+The operator ??= checks if the left-hand side is null, and only if it is null, it assigns the value from the right-hand side to the left-hand side. If the left-hand side already has a non-null value, nothing happens.
+string? name = null;
+name ??= "Default Name"; // name is null, so it gets assigned "Default Name"
+
+Console.WriteLine(name); // Output: "Default Name"
+
+name ??= "Another Name";
+Console.WriteLine(name); // Output: "Default Name" (no change, because name is not null)
+----
+
+**All**
+[source,csharp]
+----
+List<int>? numbers = null;
+int? a = null;
+
+Console.WriteLine((numbers is null)); // expected: true
+// if numbers is null, initialize it. Then, add 5 to numbers
+(numbers ??= new List<int>()).Add(5);
+Console.WriteLine(string.Join(" ", numbers));  // output: 5
+Console.WriteLine((numbers is null)); // expected: false        
+
+
+Console.WriteLine((a is null)); // expected: true
+Console.WriteLine((a ?? 3)); // expected: 3 since a is still null 
+// if a is null then assign 0 to a and add a to the list
+numbers.Add(a ??= 0);
+Console.WriteLine((a is null)); // expected: false        
+Console.WriteLine(string.Join(" ", numbers));  // output: 5 0
+Console.WriteLine(a);  // output: 0
+
+
+// From the Exam
+Person p = null!;
+var p ?? throw new Exception("");
+
+----
+
+
+Wie kann man die funktionalität von `using` in C# mit einem `try-catch-finally`
+block nachbilden?
+
+[source,csharp]
+----
+try (var p = new Person()) {
+  streamReader = new StreamReader("file.txt");
+  string content = streamReader.ReadToEnd();
+} catch (Exception e) {
+} finally {
+  streamReader.Dispose();
+}
+----
+
+Javas Records vs C# Records
+
+* Java Records sind immutable und haben keine Methoden. 
+* C# Records sind immutable und haben Methoden. (Jedoch können dieser Mutable gemacht werden mit `init` oder `set`)
+
+
+[source,csharp]
+----
+public record Person(string FirstName, string LastName);
+
+public record Person(string FirstName, string LastName)
+{
+    // Immutable property
+    public string MiddleName { get; init; }  // 'init' accessor allows setting this property only during initialization.
+
+    // Mutable property
+    public int Age { get; set; }  // 'set' accessor allows this property to be changed after initialization.
+
+    // Deconstructor
+    public void Deconstruct(out string firstName, out string lastName, out int age)
+    {
+      firstName = this.FirstName;
+      lastName = this.LastName;
+      age = this.Age;
+    }
+
+}
+
+public static void Main()
+{
+    var person = new Person("John", "Doe")
+    {
+        MiddleName = "Alexander",
+        Age = 30
+    };
+
+    // Print initial values
+    Console.WriteLine($"Name: {person.FirstName} {person.MiddleName} {person.LastName}");
+
+    // Using the deconstructor
+    (string firstName, string lastName, int age) = person;
+
+    Console.WriteLine($"First Name: {firstName}, Last Name: {lastName}, Age: {age}");
+----
+
+NOTE: Immutability: By default, properties in a record are immutable. However, you can create mutable properties if needed.
+
+[source,java]
+----
+public record Person(String firstName, String lastName) { }
+----
+
+NOTE: Immutability: All fields in a Java record are final. Java enforces immutability more strictly than C#.
+
+Introduced in C# 8.0, nullable reference types allow developers to explicitly declare whether a reference type (e.g., class, interface) is intended to be nullable or non-nullable. This feature is designed to help prevent null reference exceptions, which are common sources of bugs in applications. By default, all reference types are non-nullable if the feature is enabled
+string? nullableString = null; // This string can be null
+string nonNullableString = "Hello"; // This string should never be null
+
+The null-forgiving, or bang, operator tells the compiler to suppress warnings about possible null references. It effectively says, "I know this expression isn’t null here, even though the static analysis can't guarantee it." This is useful when you're sure a value won't be null but the compiler can't infer that certainty.
+string? nullableString = GetNullableString();
+Console.WriteLine(nullableString!.Length); // Use of the bang operator
+In the above example, even though nullableString is declared as nullable, using the ! operator tells the compiler to assume nullableString is not null when accessing its Length property. This avoids a compiler warning, but be cautious: if nullableString is actually null at runtime, this line will throw a null reference exception.
+
+If the nullableString variable is null, the Length property will throw a NullReferenceException. However, the bang operator suppresses the warning, allowing the code to compile and run. If nullableString is null, the bang operator will cause a NullReferenceException at runtime.
+
+== 3
+
+[source,csharp]
+----
+Func<int, int, int> add = (a, b) => a + b;
+----
+
+The **Func** delegate is a built-in generic delegate type.
+This delegate represents a method that can take one or more input parameters and returns a value. 
+The last type parameter of the **Func** delegate specifies the return type of the method.
+The other type parameters specify the input parameter types.
+Incase of no return type, you can use the **Action** delegate.
+
+<<delegates-in-net>>
+
+<<func-in-net>>
+
+
+**Deferred Execution in LINQ:**
+
+[source,csharp]
+----
+  persons.Where(p => p.Age > 18)
+         .Select(p => p.Name)
+         .ToList();
+----
+
+LINQ heavily relies on deferred execution. When you create a LINQ query using standard query operators (like Where, Select, OrderBy, etc.), the query definitions are stored without actually performing any data filtering or transformations. The execution of the query only occurs when the query's results are enumerated, for example, by using a foreach loop, converting the query to a list, array, or by calling methods like Count or First.
+
+Signature of Select LINQ Method:
+
+[source,csharp]
+----
+public static IEnumerable<TResult> Select<TSource, TResult>(
+    this IEnumerable<TSource> source,
+    Func<TSource, TResult> selector
+);
+
+// or
+
+public static IEnumerable<R> Select<T, R>(
+    this IEnumerable<T> source,
+    Func<T, R> selector
+);
+----
+
+== 4
+
+[cols="1a,1a,1a",width="100%"]
+|===
+
+|
+[source,csharp]
+----
+var data = Download();
+var data = Download();
+----
+
+|
+[source,csharp]
+----
+var data = await DownloadAsync();
+var data = await DownloadAsync();
+----
+
+|
+[source,csharp]
+----
+var data = DownloadAsync();
+var data = DownloadAsync();
+----
+
+|===
+
+1. `byte[] v1 = Download()`
+This is a synchronous method call. The Download() method will block the current thread until it completes its task, which means no further code will be executed until the download is finished. This approach is straightforward but can lead to poor performance, especially in UI applications where it might cause the user interface to freeze if executed on the UI thread. In web applications, blocking threads can lead to scalability issues.
+
+In Code:
+
+[source,csharp]
+----
+byte[] v1 = Download();  // Blocks here until the download completes
+// Continue execution after download is complete
+----
+
+2. `byte[] v2 = await DownloadAsync()`
+This is an asynchronous method call using the await keyword. DownloadAsync() is expected to return a Task<byte[]>, which is a promise of a future byte[] result. The await keyword tells the compiler to asynchronously wait for the task to complete without blocking the current thread.
+
+Using await allows the current method to be "paused" until the task completes, at which point it resumes right after the await statement. The beauty of await is that it does not block the thread while waiting; instead, it allows other operations to run (like UI updates or other async I/O operations). This approach is highly beneficial for maintaining responsiveness in UI applications and improving scalability in web applications.
+
+Code:
+
+[source,csharp]
+----
+byte[] v2 = await DownloadAsync();  // Execution "pauses" here, but the thread is not blocked
+// Continue execution once the task is complete
+----
+
+3. `Task<byte[]> v3 = DownloadAsync() (without await)`
+When you call DownloadAsync() without await, you're initiating the operation but not waiting for its completion. The method returns a Task<byte[]> immediately, and the calling code continues to execute. This is useful when you want to start an operation and don't need its result immediately, or when you want to manage multiple asynchronous operations in parallel.
+
+However, it's important to eventually handle the completion of the task, either by await-ing the task later or using other task management features like Task.ContinueWith or Task.WhenAll. Failing to properly handle tasks can lead to unobserved task exceptions or logic errors due to actions being performed before their prerequisites are completed.
+
+Code:
+
+[source,csharp]
+----
+Task<byte[]> v3 = DownloadAsync();  // Does not wait; returns a Task representing the ongoing operation
+// Other code can run immediately after initiating the download
+
+// Later, you might await the task or add continuation code
+byte[] result = await v3;  // Here you finally await the task
+----
+
+[source,csharp]
+----
+byte[] Download()
+Task<byte[]> DownloadAsync()
+
+/*
+var data = Download();
+var data = await DownloadAsync();
+var data = DownloadAsync();
+*/
+
+byte[] data = Download();
+byte[] data = await DownloadAsync();
+Task<byte[]> data = DownloadAsync();
+----
+
+* **Download** is a synchronous method that returns a byte[].
+* **DownloadAsync** is an asynchronous method that returns a Task<byte[]>.
+
+When you call an asynchronous method, you should use the await keyword to asynchronously wait for the method to complete. This allows the calling method to continue executing other code while the asynchronous method is running.
+
+== 4
+
+Content Negotiation
+
+Content negotiation is a mechanism defined in the HTTP specification that makes it possible to serve different versions of a document (or more generally, a resource representation) at the same URI, so that user agents can specify which version fits their capabilities the best.
+
+In the context of web development and HTTP communication, "content negotiation" is a mechanism that allows a client and server to select the best representation of a resource based on the client's capabilities and preferences. This process is crucial for delivering content in an appropriate format, which could be based on different characteristics like language, media type, or encoding.
+
+A "406 Not Acceptable" response status code is related to content negotiation. It indicates that the server cannot generate a response matching the list of acceptable values provided by the client in the request's proactive content negotiation headers (like Accept, Accept-Language, Accept-Encoding, etc.). Essentially, this status is used when the content characteristics requested by the client are not available on the server, and thus the server is unable to fulfill the request using the parameters the client provided.
+
+For example, if a client requests a resource and specifies in the Accept header that it only accepts application/json, but the server can only provide text/html, the server might respond with a 406 Not Acceptable error, indicating that it can't provide the resource in the format requested. This encourages the client either to modify its request to accommodate the formats the server can provide or to handle the scenario where the preferred content type isn't available.
+
+This negotiation can be done based on the following request headers:
+
+[source,http]
+Accept: text/html, application/json;q=0.9, */*;q=0.8
+
+Request Headers:
+
+* Accept
+* Accept-Charset
+* Accept-Encoding
+* Accept-Language
+
+Resonse/(Request) Headers:
+
+* Content-Type
+* Content-Encoding
+* Content-Language
+* Content-Charset
+
+HTTP Codes for CRUD Operations:
+
+* POST: 201 Created
+* PUT: 200 OK
+* GET: 200 OK
+* DELETE: 204 No Content
+
+For Errors:
+
+* 400 Bad Request
+* 401 Unauthorized
+* 403 Forbidden
+* 404 Not Found
+* 405 Method Not Allowed
+* 406 Not Acceptable (Content Negotiation)
+* 409 Conflict
+
+[source,http]
+----
+GET /api/todos 200
+PUT /api/todos 201/200
+DELETE /api/todos/{id} 204/200
+----
+
+Which HTTP methods are idempotent?
+
+**GET** and **POST** are idempotent operations, meaning that they can be called multiple times without changing the result of the operation.
+**PUT** and **DELETE** are not idempotent, meaning that calling them multiple times can change the state of the system.
+
+
+=== DTOs
+
+Data Transfer Objects (DTOs) are objects that carry data between processes. They are used to encapsulate data and send it over the network or between different layers of an application. DTOs are often used in distributed systems to transfer data between clients and servers or between different parts of a system.
+
+For CRUD operations in a RESTful API, DTOs are commonly used to represent the data being sent to or received from the API. For example, when creating a new resource, a client might send a DTO representing the resource to be created. Similarly, when retrieving a resource, the API might return a DTO representing the resource's data.
+
+DTOs can be different depending on the specific use case and the data being transferred. They are typically simple data structures that contain properties representing the data fields being transferred.
+
+DTOs without Id properties are often used for creating new resources, as the server will generate the Id when the resource is created. DTOs with Id properties are used for updating or retrieving existing resources, as the Id is needed to identify the resource.
+
+=== Controllers
+
+[source,csharp]
+----
+[ApiController]
+[Route("api/[controller]")]
+public class ExampleController {
+
+  public ExampleController(ITodoLogic logic, IMapper mapper) {
+    _logic = logic;
+    _mapper = mapper;
+  }
+
+  [HttpPut("{id}")]
+  IActionResult Update(int id, [FromBody] ExampleDto dto) {
+    // Update the resource with the given ID using the data in the DTO
+    mapper.Map(dto, entity);
+    // ...
+    return Ok();
+  }
+
+}
+----
+
+To add a background service in an ASP.NET Core application, you can create a class that inherits from the `BackgroundService` base class provided by ASP.NET Core. This background service will run on a separate thread and perform background processing tasks.
+
+[source,csharp]
+----
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+public class AggregateStatisticsService : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            // Perform background processing tasks here
+            // For example, calculate aggregate statistics
+
+            // Simulate processing by delaying for a certain interval
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken); // Delay for 5 minutes
+        }
+    }
+}
+----
+
+[source,csharp]
+----
+using Microsoft.Extensions.DependencyInjection;
+
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        // Add the background service to the service collection
+        services.AddHostedService<AggregateStatisticsService>();
+
+        // Other service registrations...
+    }
+
+    // Other methods...
+}
+----
+
+The AddHostedService<T> method registers the AggregateStatisticsService as a hosted service in the ASP.NET Core application. ASP.NET Core will manage the lifecycle of the background service, starting it when the application starts and stopping it when the application shuts down.
+
+Implement the logic for calculating aggregate statistics inside the ExecuteAsync method of the AggregateStatisticsService class. This method runs continuously in the background, performing the specified tasks at regular intervals.
+
+Optionally, handle cancellation requests by checking the stoppingToken parameter passed to the ExecuteAsync method. This token allows the service to gracefully shut down when the application is stopped or restarted.
+
+== Delegates in .NET
+
+[[delegates-in-net]]
+
+Delegates in .NET are akin to type-safe function pointers found in other programming languages, but are designed with high safety and flexibility in mind. They are used extensively to support events and call-back methods.
+
+=== Key Characteristics of Delegates
+
+.Delegate Overview:
+
+    Type Safety: Delegates ensure that the methods they reference match the expected signature in terms of return type and parameters.
+    Multicasting: Unlike simple function pointers, delegates can reference and invoke multiple methods.
+    Anonymous Methods and Lambdas: Starting from C# 2.0 and 3.0, delegates can be instantiated using anonymous methods or lambda expressions, simplifying their declaration and usage.
+
+
+=== Usage
+
+Delegates are pivotal in the handling of events and callbacks within the .NET framework. Here's how they are typically used:
+
+[source,csharp]
+----
+public delegate void DisplayMessage(string message);
+
+public class Program
+{
+    public static void Main()
+    {
+        DisplayMessage messageTarget;
+
+        if (Environment.GetCommandLineArgs().Length > 1)
+            messageTarget = ShowWindowsMessage;
+        else
+            messageTarget = Console.WriteLine;
+
+        messageTarget("Hello, World!");
+    }
+
+    static void ShowWindowsMessage(string message)
+    {
+        System.Windows.Forms.MessageBox.Show(message);
+    }
+}
+----
+
+In this example, the DisplayMessage delegate is defined to point to any method that accepts a single string parameter and does not return a value. Based on runtime conditions, it points to either the Console.WriteLine method or a custom method ShowWindowsMessage.
+
+=== Built-in Delegates
+
+.NET includes several built-in delegate types, such as Func<> and Action<>, which facilitate the declaration and usage of delegates without the need for explicit definition in many common scenarios.
+
+
+
+== Func<> Delegate in C#
+
+[[func-in-net]]
+
+The `Func<>` delegate in C# is a predefined generic delegate that simplifies the declaration of delegates that return a value. This delegate can have zero to sixteen input parameters and one return type, making it highly versatile and commonly used in many programming scenarios, especially in LINQ and when expressions are needed for algorithmic operations.
+
+=== Overview
+
+The `Func<>` type is part of the .NET Framework's System namespace. It is designed to facilitate the creation of inline and succinct code without the explicit definition of custom delegate types.
+
+=== Key Features of Func<>
+
+*Type Safety:* `Func<>` delegates ensure that all parameters and the return type are strongly typed, reducing errors due to type mismatches.
+
+*Overloads:* `Func<>` provides overloads for up to 16 parameters, offering significant flexibility in adapting to different functional needs.
+
+*Integration with LINQ:* Often used in LINQ to define inline functions for query expressions.
+
+=== Example Usage
+
+Here is an example demonstrating how to use the `Func<>` delegate:
+
+[source,csharp]
+----
+public class Program
+{
+    public static void Main()
+    {
+        // Define a Func delegate that takes two integers and returns their product
+        Func<int, int, int> multiply = (x, y) => x * y;
+
+        // Use the Func delegate
+        int result = multiply(10, 20);
+        Console.WriteLine("The product is: " + result);
+    }
+}
+----
+
+In this example, `Func<int, int, int>` is a delegate that takes two integers and returns their multiplication result. The lambda expression `(x, y) => x * y` provides the implementation directly in the delegate instantiation.
+
+=== Benefits of Using Func<>
+
+*Reduces Boilerplate Code:* Eliminates the need to manually define delegates for simple method signatures.
+
+*Enhances Code Readability:* Using `Func<>` can make the intent of code clearer, as it helps focus on what the code does rather than the boilerplate around method signatures.
+
+*Flexibility:* `Func<>` delegates can be passed as method parameters, stored in data structures, or used as return types, enhancing the functional programming capabilities in C#.
+
