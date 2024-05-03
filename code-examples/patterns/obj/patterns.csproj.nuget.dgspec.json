@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Public\\SWK5-gitea\\swk5\\code-examples\\patterns\\patterns.csproj": {}
+    "C:\\Public\\SWK5-review\\swk5\\code-examples\\patterns\\patterns.csproj": {}
   },
   "projects": {
-    "C:\\Public\\SWK5-gitea\\swk5\\code-examples\\patterns\\patterns.csproj": {
+    "C:\\Public\\SWK5-review\\swk5\\code-examples\\patterns\\patterns.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Public\\SWK5-gitea\\swk5\\code-examples\\patterns\\patterns.csproj",
+        "projectUniqueName": "C:\\Public\\SWK5-review\\swk5\\code-examples\\patterns\\patterns.csproj",
         "projectName": "patterns",
-        "projectPath": "C:\\Public\\SWK5-gitea\\swk5\\code-examples\\patterns\\patterns.csproj",
+        "projectPath": "C:\\Public\\SWK5-review\\swk5\\code-examples\\patterns\\patterns.csproj",
         "packagesPath": "C:\\Users\\jackh\\.nuget\\packages\\",
-        "outputPath": "C:\\Public\\SWK5-gitea\\swk5\\code-examples\\patterns\\obj\\",
+        "outputPath": "C:\\Public\\SWK5-review\\swk5\\code-examples\\patterns\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

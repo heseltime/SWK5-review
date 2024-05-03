@@ -1,3 +1,4 @@
 {
-    "dotnet.defaultSolution": "patterns.sln"
+    "dotnet.defaultSolution": "patterns.sln",
+    "asciidoc.antora.enableAntoraSupport": true
 }

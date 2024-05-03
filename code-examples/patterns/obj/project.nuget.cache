@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Gi9bfP2+PYA60RlZfS+ZbtTRrOyVEOLI86KWcr8hDwDGYEHxtoG0MrAN27JJViaWFI/Xr9k1Xl+M3gRBKv7Xnw==",
+  "dgSpecHash": "lbxlqKFweQr0eNbUlLVQPYkrqCTK+VQ8UlaSa99ub/Pk2GSnF2UMwj9a1MGYh6xyxcbpO3Tn4I+iqTof46dStg==",
   "success": true,
-  "projectFilePath": "C:\\Public\\SWK5-gitea\\swk5\\code-examples\\patterns\\patterns.csproj",
+  "projectFilePath": "C:\\Public\\SWK5-review\\swk5\\code-examples\\patterns\\patterns.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

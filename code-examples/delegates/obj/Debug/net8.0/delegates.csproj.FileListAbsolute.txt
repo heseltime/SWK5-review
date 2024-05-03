@@ -1,0 +1,15 @@
+C:\Public\SWK5-review\swk5\code-examples\delegates\bin\Debug\net8.0\delegates.exe
+C:\Public\SWK5-review\swk5\code-examples\delegates\bin\Debug\net8.0\delegates.deps.json
+C:\Public\SWK5-review\swk5\code-examples\delegates\bin\Debug\net8.0\delegates.runtimeconfig.json
+C:\Public\SWK5-review\swk5\code-examples\delegates\bin\Debug\net8.0\delegates.dll
+C:\Public\SWK5-review\swk5\code-examples\delegates\bin\Debug\net8.0\delegates.pdb
+C:\Public\SWK5-review\swk5\code-examples\delegates\obj\Debug\net8.0\delegates.GeneratedMSBuildEditorConfig.editorconfig
+C:\Public\SWK5-review\swk5\code-examples\delegates\obj\Debug\net8.0\delegates.AssemblyInfoInputs.cache
+C:\Public\SWK5-review\swk5\code-examples\delegates\obj\Debug\net8.0\delegates.AssemblyInfo.cs
+C:\Public\SWK5-review\swk5\code-examples\delegates\obj\Debug\net8.0\delegates.csproj.CoreCompileInputs.cache
+C:\Public\SWK5-review\swk5\code-examples\delegates\obj\Debug\net8.0\delegates.sourcelink.json
+C:\Public\SWK5-review\swk5\code-examples\delegates\obj\Debug\net8.0\delegates.dll
+C:\Public\SWK5-review\swk5\code-examples\delegates\obj\Debug\net8.0\refint\delegates.dll
+C:\Public\SWK5-review\swk5\code-examples\delegates\obj\Debug\net8.0\delegates.pdb
+C:\Public\SWK5-review\swk5\code-examples\delegates\obj\Debug\net8.0\delegates.genruntimeconfig.cache
+C:\Public\SWK5-review\swk5\code-examples\delegates\obj\Debug\net8.0\ref\delegates.dll
